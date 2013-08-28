@@ -38,28 +38,40 @@ var fileHasChanged = false;
 var gui = require('nw.gui');
 var mainWindow = gui.Window.get();
 
+/*
+ * load last opened file
+ */
 if(currFile) {
-	fileSys.open(currFile, function(obj) {
-		codeMirror.setValue(obj.data);
-		fileHasChanged = false;
+	fileSys.open(currFile, function(resp) {
+		if(resp.error) {
+			newFile();
+		} else {
+			codeMirror.setValue(resp.data);
+			fileHasChanged = false;	
+		}
 	});
 }
 /*
  *	Set window initial state from previous session
  */
 (function() {
-	var maximized = localStorage.getItem('windowMaximized') == 'true';
 	// Number(null) evaluates to 0, which is a falsy value
-	var width = Number(localStorage.getItem('windowWidth'));
-	var height = Number(localStorage.getItem('windowHeight'));
-	if(maximized) {
-		mainWindow.maximize();
-	} else if(width && height) {
-		mainWindow.moveBy(Math.floor((mainWindow.width - width) / 2), Math.floor((mainWindow.height - height) / 2));
-		mainWindow.resizeTo(width, height);
+	var width = Number(localStorage.getItem('window.width'));
+	var height = Number(localStorage.getItem('window.height'));
+	
+	if(width && height) {
+		if(width > window.screen.availWidth && height > window.screen.availHeight) {
+			mainWindow.maximize();
+		} else {
+			mainWindow.moveBy(Math.floor((mainWindow.width - width) / 2), Math.floor((mainWindow.height - height) / 2));
+			mainWindow.resizeTo(width, height);		
+		}
 	}
 })();
 
+/*
+ *	Save state.
+ */
 mainWindow.on('close', function() {
 	this.hide();
 	if(currFile) {
@@ -67,18 +79,15 @@ mainWindow.on('close', function() {
 	} else {
 		localStorage.removeItem('lastOpenedFile');
 	}
-	localStorage.setItem('windowWidth', mainWindow.width);
-	localStorage.setItem('windowHeight', mainWindow.height);
+	localStorage.setItem('window.width', mainWindow.width);
+	localStorage.setItem('window.height', mainWindow.height);
 	this.close(true);
 });
-mainWindow.on('maximize', function() {
-	localStorage.setItem('windowMaximized', true);
-});
-mainWindow.on('unmaximize', function() {
-	localStorage.removeItem('windowMaximized');
-});
 
-mainWindow.menu = createMenu(gui, [{
+/*
+ *	Create menu
+ */
+mainWindow.menu = Menu.create(gui, [{
 	label: 'File',
 	submenu: [
 		{
@@ -101,6 +110,10 @@ mainWindow.menu = createMenu(gui, [{
 		}
 	]
 }], 'menubar');
+
+/*
+ *	Bind keyboard shortcuts
+ */
 $(document).keydown(function(e) {
 	if(e.ctrlKey) {
 		if(e.keyCode == 83) { // s
@@ -118,7 +131,7 @@ $(document).keydown(function(e) {
 });
 
 function checkIfFileChanged(callback) {
-	if(fileHasChanged) {
+	if(fileHasChanged && codeMirror.getValue()) {
 		Alert.create({
 			text: 'Do you want to save you changes?',
 			buttons: [{
@@ -151,9 +164,9 @@ function newFile() {
 }
 function browseFile() {
 	checkIfFileChanged(function() {
-		fileSys.browse(function(obj) {
-			codeMirror.setValue(obj.data);
-			currFile = obj.path;
+		fileSys.browse(function(resp) {
+			codeMirror.setValue(resp.data);
+			currFile = resp.path;
 		});
 	});
 }
@@ -169,8 +182,8 @@ function saveFile() {
 	}
 }
 function saveFileAs() {
-	fileSys.saveAs('doc.md', codeMirror.getValue(), function(obj) {
-		currFile = obj.path;
+	fileSys.saveAs('doc.md', codeMirror.getValue(), function(resp) {
+		currFile = resp.path;
 		postSave();
 	});
 }
