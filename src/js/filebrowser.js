@@ -1,4 +1,5 @@
-var FileBrowser = function() {
+var File = {};
+File.Browser = function() {
 
 	var fileDialog = $('<input type="file" value="init"/>');
 	var browseCallback;
@@ -17,4 +18,25 @@ var FileBrowser = function() {
 			fileDialog.click();
 		}
 	};
-}
+};
+
+File.Saver = function() {
+	var fileDialog = $('<input type="file" nwsaveas />');
+	fileDialog.change(function(e) {
+		console.log(fileDialog[0].files);
+	});
+
+	return {
+		save: function(filename, data) {
+			fileDialog.off('change').change(function(e) {
+				var files = fileDialog[0].files;
+				if(files.length == 1) {
+					var file = files[0];
+					console.log(file);
+					console.log('saving file to "' + file.path + '"');
+				}
+			});
+			fileDialog.click();
+		}
+	};
+};

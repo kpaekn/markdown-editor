@@ -6,29 +6,57 @@ var converter = new Markdown.Converter();
 var codeMirror = CodeMirror(document.body, {
 	mode: 'markdown',
 	theme: 'twilight'
-}).on('change', function(instance, obj) {
+});
+codeMirror.on('change', function(instance, obj) {
 	preview.html(converter.makeHtml(instance.getValue()));
 });
 
-var fileBrowser = new FileBrowser();
+var currentFile;
+var fileBrowser = new File.Browser();
+var fileSaver = new File.Saver();
+var menuFunctions = {
+	openFile: function() {
+		fileBrowser.browse(function(path) {
+			console.log(path);
+			currentFile = path;
+		});	
+	},
+	saveFile: function() {
+		// if is an existing file
+		// straight up save
+		// else
+		menuFunctions.saveFileAs();
+	},
+	saveFileAs: function() {
+		fileSaver.save('doc.md', codeMirror.getValue());
+	},
+	exitApp: function() {
+		$('body').animate({ opacity: 0.2 }, 400, 'linear', function() {
+			gui.App.quit();
+		});
+	}
+}
 
 var gui = require('nw.gui');
-var menu = new gui.Menu({
-	type: 'menubar'
-});
-
-var fileMenuItem = new gui.MenuItem({
-	label: 'File'
-});
-fileMenuItem.submenu = new gui.Menu();
-fileMenuItem.submenu.append(new gui.MenuItem({ label: 'New' }));
-fileMenuItem.submenu.append(new gui.MenuItem({ label: 'Open' }));
-fileMenuItem.submenu.append(new gui.MenuItem({ label: 'Save' }));
-fileMenuItem.submenu.append(new gui.MenuItem({ label: 'Save as...' }));
-fileMenuItem.submenu.append(new gui.MenuItem({ type: 'separator' }));
-fileMenuItem.submenu.append(new gui.MenuItem({ label: 'Close' }));
-
-menu.append(fileMenuItem);
-
-
-gui.Window.get().menu = menu;
+gui.Window.get().menu = createMenu(gui, [{
+	label: 'File',
+	submenu: [
+		{
+			label: 'New'
+		}, {
+			label: 'Open',
+			click: menuFunctions.openFile
+		}, {
+			label: 'Save',
+			click: menuFunctions.saveFile
+		}, {
+			label: 'Save As...',
+			click: menuFunctions.saveFileAs
+		}, {
+			type: 'separator'
+		}, {
+			label: 'Exit',
+			click: menuFunctions.exitApp
+		}
+	]
+}], 'menubar');
