@@ -6,14 +6,18 @@
         <link rel="stylesheet" type="text/css" href="css/codemirror/codemirror.css">
         <link rel="stylesheet" type="text/css" href="css/codemirror/theme/twilight.css">
         <link rel="stylesheet" type="text/css" href="css/markdown.css">
+
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
         <link rel="stylesheet" type="text/css" href="css/notify.css">
         <link rel="stylesheet" type="text/css" href="css/alert.css">
         <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
 
     <body>
-        <div></div>
-		<div class="markdown-preview markdown"></div>
+        <div id="code-mirror-container"></div>
+		<div id="preview-container">
+			<div class="markdown"></div>
+		</div>
 
         <script type="text/javascript" src="js/markdown/Markdown.Converter.js"></script>
 
@@ -21,6 +25,8 @@
         <script type="text/javascript" src="js/codemirror/mode/markdown.js"></script>
 
         <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
         <script type="text/javascript" src="js/notify.js"></script>
         <script type="text/javascript" src="js/alert.js"></script>
         <script type="text/javascript" src="js/file-sys.js"></script>

@@ -1,3 +1,33 @@
-body{background-color:#333;font-family:Helvetica,sans-serif}body.fade{opacity:.1;transition:1s linear}
-.CodeMirror{float:left;width:50%;height:100%}
-.markdown-preview{box-sizing:border-box;float:right;width:50%;height:100%;overflow:auto;padding:1em}
+body {
+  background-color: #333;
+  font-family: Helvetica, sans-serif;
+  overflow: hidden;
+}
+body.fade {
+  opacity: 0.1;
+  transition: 1s linear;
+}
+#code-mirror-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+}
+#code-mirror-container .CodeMirror {
+  height: 100%;
+}
+#preview-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+#preview-container .markdown {
+  box-sizing: border-box;
+  height: 100%;
+}

@@ -2,10 +2,12 @@
  *	Setup Markdown Converter and
  *		  Codemirror Editor
  */
-var preview = $('.markdown-preview');
+var previewContainer = $('#preview-container');
+var preview = previewContainer.find('.markdown');
+var codeMirrorContainer = $('#code-mirror-container');
 var converter = new Markdown.Converter();
-var codeMirror = CodeMirror(document.body, {
-	lineNumbers: true,
+var codeMirror = CodeMirror(codeMirrorContainer[0], {
+	
 	lineWrapping: true,
 	mode: 'markdown',
 	theme: 'twilight'
@@ -15,10 +17,26 @@ codeMirror.on('change', function(instance, obj) {
 	fileHasChanged = true;
 });
 
+
+codeMirrorContainer.resizable({
+	handles: 'e'
+}).resize(resizePanes);
+$(window).resize(resizePanes);
+
+function resizePanes() {
+	var windowWidth = $(window).width();
+	var codeWidth = codeMirrorContainer.width();
+	if(codeWidth > windowWidth - 100) {
+		codeWidth = windowWidth - 100
+		codeMirrorContainer.width(codeWidth);
+	}
+	previewContainer.width(windowWidth - codeWidth);
+}
+
 /**
  *	Make links open in external browser.
  */
-preview.delegate('a', 'click', function(e) {
+previewContainer.delegate('a', 'click', function(e) {
 	e.preventDefault();
 	var link = $(this),
 		href = link.attr('href');
