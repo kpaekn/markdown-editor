@@ -1,14 +1,14 @@
 {
-	"name": "markdown-editor",
-	"main": "index.html",
-	"version": "0.1.0",
-	"window": {
-		"title": "MarkDown Editor",
-		"frame": true,
-		"width": 800,
-		"height": 600,
-		"min_width": 200,
-		"min_height": 200,
-		"toolbar": false
-	}
+  "name": "markdown-editor",
+  "main": "index.html",
+  "version": "0.1.0",
+  "window": {
+    "title": "Note Taker",
+    "frame": true,
+    "width": 800,
+    "height": 600,
+    "min_width": 800,
+    "min_height": 600,
+    "toolbar": false
+  }
 }

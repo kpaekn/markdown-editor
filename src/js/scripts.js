@@ -1,76 +1,40 @@
-/**
- *	Setup Markdown Converter and
- *		  Codemirror Editor
- */
+var toolbar = $('#toolbar');
+var codeContainer = $('#code-container');
 var previewContainer = $('#preview-container');
-var preview = previewContainer.find('.markdown');
-var codeMirrorContainer = $('#code-mirror-container');
-var converter = new Markdown.Converter();
-var codeMirror = CodeMirror(codeMirrorContainer[0], {
-	
-	lineWrapping: true,
-	mode: 'markdown',
-	theme: 'twilight'
-});
-codeMirror.on('change', function(instance, obj) {
-	preview.html(converter.makeHtml(instance.getValue()));
-	fileHasChanged = true;
-});
-
-
-codeMirrorContainer.resizable({
-	handles: 'e'
-}).resize(resizePanes);
-$(window).resize(resizePanes);
-
-function resizePanes() {
-	var windowWidth = $(window).width();
-	var codeWidth = codeMirrorContainer.width();
-	if(codeWidth > windowWidth - 100) {
-		codeWidth = windowWidth - 100
-		codeMirrorContainer.width(codeWidth);
-	}
-	previewContainer.width(windowWidth - codeWidth);
-}
+var preview = previewContainer.find('.preview');
 
 /**
- *	Make links open in external browser.
+ *	Initialize editor
  */
-previewContainer.delegate('a', 'click', function(e) {
-	e.preventDefault();
-	var link = $(this),
-		href = link.attr('href');
-	if(href) {
-		window.open(href);
-	}
-});
+var aceEditor = ace.edit('ace-editor');
+aceEditor.setTheme('ace/theme/twilight');
+aceEditor.getSession().setMode('ace/mode/markdown');
+aceEditor.getSession().setUseWrapMode(true);
+aceEditor.setPrintMarginColumn(false);
 
-/**
- *	Setup FileSystem,
- *		  Menu bar,
- *		  Session data (save on close, load on open)
- */
-var fileSys = new FileSys();
-var currFile = localStorage.getItem('lastOpenedFile');
+var fs = new Filesys();
 var fileHasChanged = false;
+var currFile = localStorage.getItem('lastOpenedFile');
 var gui = require('nw.gui');
 var mainWindow = gui.Window.get();
 
-/*
- * load last opened file
+/**
+ *	Load last file
  */
 if(currFile) {
-	fileSys.open(currFile, function(resp) {
+	fs.open(currFile, function(resp) {
 		if(resp.error) {
 			newFile();
 		} else {
-			codeMirror.setValue(resp.data);
+			aceEditor.getSession().setValue(resp.data);
 			fileHasChanged = false;	
+			setTitle(currFile);
 		}
 	});
 }
-/*
- *	Set window initial state from previous session
+
+/**
+ *	Restore the state from previous session
  */
 (function() {
 	// Number(null) evaluates to 0, which is a falsy value
@@ -87,47 +51,74 @@ if(currFile) {
 	}
 })();
 
-/*
- *	Save state.
+/**
+ *	Save the state of the app on close
  */
 mainWindow.on('close', function() {
-	this.hide();
-	if(currFile) {
-		localStorage.setItem('lastOpenedFile', currFile);	
-	} else {
-		localStorage.removeItem('lastOpenedFile');
-	}
-	localStorage.setItem('window.width', mainWindow.width);
-	localStorage.setItem('window.height', mainWindow.height);
-	this.close(true);
+	checkIfFileChanged(function() {
+		mainWindow.hide();
+		if(currFile) {
+			localStorage.setItem('lastOpenedFile', currFile);	
+		} else {
+			localStorage.removeItem('lastOpenedFile');
+		}
+		localStorage.setItem('window.width', mainWindow.width);
+		localStorage.setItem('window.height', mainWindow.height);
+		mainWindow.close(true);
+	});
 });
 
-/*
- *	Create menu
+/**
+ *	Initialize toolbar
  */
-mainWindow.menu = Menu.create(gui, [{
-	label: 'File',
-	submenu: [
-		{
-			label: 'New',
-			click: newFile
-		}, {
-			label: 'Open',
-			click: browseFile
-		}, {
-			label: 'Save',
-			click: saveFile
-		}, {
-			label: 'Save As...',
-			click: saveFileAs
-		}, {
-			type: 'separator'
-		}, {
-			label: 'Exit',
-			click: exitApp
+(function() {
+	// Add tooltips to toolbar buttons
+	toolbar.find('button').qtip({
+		position: {
+			my: 'top left',
+			at: 'bottom right'
 		}
-	]
-}], 'menubar');
+	});
+	// click events
+	toolbar.find('.new').click(newFile);
+	toolbar.find('.open').click(browseFile);
+	toolbar.find('.save').click(saveFile);
+	toolbar.find('.saveas').click(saveFileAs);
+})();
+
+/**
+ *	Enable resizing of the panes
+ */
+(function() {
+	var win = $(window);
+	var onResize = function() {
+		var wWidth = win.width();
+		var cWidth = codeContainer.width();
+		if(cWidth < 100) {
+			cWidth = 100;
+		} else if(wWidth - cWidth < 100) {
+			cWidth = wWidth - 100;
+		}
+		codeContainer.width(cWidth);
+		previewContainer.width(wWidth - cWidth);
+		aceEditor.resize();
+	};
+	codeContainer.resizable({
+		handles: 'e'
+	}).resize(onResize);
+	win.resize(onResize);
+})();
+
+/**
+ *	Editor on change
+ */
+(function() {
+	aceEditor.getSession().on('change', function(e) {
+		// Parse markdown and display in preview
+		preview.html(marked(aceEditor.getSession().getValue()));
+		fileHasChanged = true;
+	});
+})();
 
 /*
  *	Bind keyboard shortcuts
@@ -149,9 +140,10 @@ $(document).keydown(function(e) {
 });
 
 function checkIfFileChanged(callback) {
-	if(fileHasChanged && codeMirror.getValue()) {
-		Alert.create({
-			text: 'Do you want to save you changes?',
+	if(fileHasChanged && aceEditor.getSession().getValue()) {
+		$.popup({
+			body: 'Do you want to save your changes?',
+			width: 300,
 			buttons: [{
 				label: 'Save',
 				click: function() {
@@ -175,23 +167,25 @@ function checkIfFileChanged(callback) {
 }
 function newFile() {
 	checkIfFileChanged(function() {
-		codeMirror.setValue('');
+		aceEditor.getSession().setValue('');
 		currFile = null;
 		fileHasChanged = false;
+		setTitle('Untitled');
 	});
 }
 function browseFile() {
 	checkIfFileChanged(function() {
-		fileSys.browse(function(resp) {
-			codeMirror.setValue(resp.data);
+		fs.browse(function(resp) {
+			aceEditor.getSession().setValue(resp.data);
 			currFile = resp.path;
+			setTitle(currFile);
 		});
 	});
 }
 function saveFile() {
 	if(currFile) {
 		if(fileHasChanged) {
-			fileSys.save(currFile, codeMirror.getValue(), postSave);	
+			fs.save(currFile, aceEditor.getSession().getValue(), postSave);	
 		} else {
 			postSave();
 		}
@@ -200,17 +194,21 @@ function saveFile() {
 	}
 }
 function saveFileAs() {
-	fileSys.saveAs('doc.md', codeMirror.getValue(), function(resp) {
+	fs.saveAs(aceEditor.getSession().getValue(), function(resp) {
 		currFile = resp.path;
 		postSave();
+		setTitle(currFile);
 	});
 }
 function postSave() {
-	Notify.create({ text: 'File saved.' });
+	$.notify({ text: 'File saved.' });
 	fileHasChanged = false;
 }
 function exitApp() {
 	$('body').animate({ opacity: 0.2 }, 400, 'linear', function() {
 		mainWindow.close();
 	});
+}
+function setTitle(title) {
+	$('title').html(title + ' - Markdown Editor');
 }

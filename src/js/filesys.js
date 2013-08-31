@@ -1,9 +1,8 @@
-var FileSys = function() {
+var Filesys = function() {
 
 	var fs = require('fs');
 	var browseDialog = $('<input type="file"/>');
 	var saveDialog = $('<input type="file" nwsaveas />');
-
 
 	var obj = {
 		open: function(path, callback) {
@@ -40,7 +39,7 @@ var FileSys = function() {
 				}
 			});
 		},
-		saveAs: function(fileName, data, callback) {
+		saveAs: function(data, callback) {
 			saveDialog.off('change').change(function(e) {
 				var files = saveDialog[0].files;
 				if(files.length > 0) {

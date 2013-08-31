@@ -87,6 +87,7 @@ body {
 
 a {
     background: transparent;
+    text-decoration: none;
 }
 
 /**

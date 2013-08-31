@@ -1,36 +1,46 @@
 <html>
-    <head>
-        <title>MarkDown Editor</title>
 
-        <link rel="stylesheet" type="text/css" href="css/normalize.css">
-        <link rel="stylesheet" type="text/css" href="css/codemirror/codemirror.css">
-        <link rel="stylesheet" type="text/css" href="css/codemirror/theme/twilight.css">
-        <link rel="stylesheet" type="text/css" href="css/markdown.css">
+<head>
+    <title>Note Taker</title>
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-resizable.min.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery.qtip.min.css">
 
-        <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
-        <link rel="stylesheet" type="text/css" href="css/notify.css">
-        <link rel="stylesheet" type="text/css" href="css/alert.css">
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-    </head>
+    <link rel="stylesheet" type="text/css" href="css/jquery-notify.css">
+    <link rel="stylesheet" type="text/css" href="css/markdown.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
 
-    <body>
-        <div id="code-mirror-container"></div>
-		<div id="preview-container">
-			<div class="markdown"></div>
-		</div>
+<body>
 
-        <script type="text/javascript" src="js/markdown/Markdown.Converter.js"></script>
+    <div id="toolbar">
+        <button class="new" title="New (Ctrl + N)"><i class="glyphicon glyphicon-file"></i></button>
+        <button class="open" title="Open (Ctrl + O)"><i class="glyphicon glyphicon-folder-open"></i></button>
+        <button class="save" title="Save (Ctrl + S)"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+        <button class="saveas" title="Save As... (Ctrl + Shift + S)"><i class="glyphicon glyphicon-floppy-disk"></i></button>
+    </div>
+    <div id="code-container">
+        <div id="ace-editor"></div>
+    </div>
+    <div id="preview-container">
+        <div class="preview markdown"></div>
+    </div>
 
-        <script type="text/javascript" src="js/codemirror/codemirror.js"></script>
-        <script type="text/javascript" src="js/codemirror/mode/markdown.js"></script>
+    <!-- scripts -->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-resizable.min.js"></script>
+    <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 
-        <script type="text/javascript" src="js/jquery.min.js"></script>
-        <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="ace-editor/src-min-noconflict/ace.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/marked.js"></script>
 
-        <script type="text/javascript" src="js/notify.js"></script>
-        <script type="text/javascript" src="js/alert.js"></script>
-        <script type="text/javascript" src="js/file-sys.js"></script>
-        <script type="text/javascript" src="js/menu.js"></script>
-        <script type="text/javascript" src="js/scripts.js"></script>
-	</body>
+    <script type="text/javascript" src="js/filesys.js"></script>
+    <script type="text/javascript" src="js/jquery-notify.js"></script>
+    <script type="text/javascript" src="js/bootstrap-popup.js"></script>
+
+    <script type="text/javascript" src="js/scripts.js"></script>
+</body>
+
 </html>
