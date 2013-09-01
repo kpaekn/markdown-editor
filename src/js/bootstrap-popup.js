@@ -1,6 +1,6 @@
 (function($) {
 
-	var TEMPLATE = ['<div class="bootstrap"><div class="panel panel-default">',
+	var TEMPLATE = ['<div class="popup bootstrap"><div class="panel panel-default">',
 					'<div class="panel-body"></div>',
 					'<div class="panel-footer"></div></div>'].join(''),
 		BUTTON_TEMPLATE = '<a class="btn" href="#"></a> ',
@@ -12,16 +12,7 @@
 			}]
 		},
 		body = $('body'),
-		backdrop = $('<div class="backdrop"></div>').css({
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			right: 0,
-			bottom: 0,
-			zIndex: 10,
-			backgroundColor: '#000',
-			opacity: .5
-		}),
+		backdrop = $('<div class="backdrop"></div>'),
 		active = false;
 
 	$.popup = function(opts) {
@@ -64,10 +55,6 @@
 
 		body.append(backdrop, popup);
 		popup.css({
-			position: 'fixed',
-			top: '50%',
-			left: '50%',
-			zIndex: 15,
 			width: opts.width,
 			marginLeft: -(opts.width / 2),
 			marginTop: -(popup.outerHeight() / 2)
